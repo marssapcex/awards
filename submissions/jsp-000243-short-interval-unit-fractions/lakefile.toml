@@ -1,0 +1,13 @@
+name = "jsp-000243"
+version = "1.0.0"
+keywords = ["math", "number theory", "unit fractions", "Egyptian fractions"]
+defaultTargets = ["Audit"]
+
+[[lean_lib]]
+name = "Proof"
+
+[[lean_lib]]
+name = "Challenge"
+
+[[lean_lib]]
+name = "Audit"

@@ -1,0 +1,163 @@
+JSP-000243 — verification record
+================================
+
+Recorded: 2026-09-16 (UTC).  Contributor-run verification; not official approval.
+
+1. Files, digests and sizes
+---------------------------
+Proof.lean                          18897 bytes  sha256=e8e92386b708c0ac400ff70fda83a7462c87ba73d192ba98fb684917e7946cc3
+Challenge.lean                       4576 bytes  sha256=7430c7bfbbba9d049521de7a86bf81f708af70f1e0e54b84696c8802c59ad67f
+Audit.lean                           1493 bytes  sha256=be8449b017b42cf4ffe168c5e81f3f7551b730c0f0b503a00eadd13fb6ea994a
+STATEMENT.md                         5168 bytes  sha256=38e8bbd0ba114a379c04ff654e81f4f8d60cab9eaabcbbf6dc8576be4a999ee5
+README.md                            9327 bytes  sha256=4097f7920c5be1de43aa7dd019fb341c2d2a4ffe3d19667c57343b203bd1796f
+lakefile.toml                         233 bytes  sha256=d6444ac4acdfec717ab69947262a0221c7630d7b5d15111007fc50fc6fcfa0ac
+lean-toolchain                         25 bytes  sha256=8733782dc070a99b312039cda424f601b80f3be6f6f512627da5ba25adc27632
+lake-manifest.json                    124 bytes  sha256=7d826aad35db7d24384d30928b8c303ba3528e7db1acca876af6d2387436f2a4
+verification/crosscheck.py           1665 bytes  sha256=32432ef0c63c52ed1c3c9eb373a330466eb144fd2e60edd9565460cef7afc399
+
+(SHA256SUMS holds the same digests in `sha256sum -c` format.)
+
+2. Toolchain
+------------
+Pinned in lean-toolchain: leanprover/lean4:v4.34.0
+
+At the time of submission v4.34.0 is the latest *stable* leanprover/lean4
+release (v4.35.0 was unreleased; v4.35.0-rc1/rc2 were the only 4.35
+pre-releases).  The checker actually used was a from-source bootstrap of the
+development compiler immediately following v4.34.0:
+
+  source        leanprover/lean4, main, commit eea2a2d89
+                ('fix: link the bundled Rust checkers against the toolchain's
+                  sysroot (#15173)')
+  configuration cmake -S . -B build/release -G 'Unix Makefiles'
+                  -DCMAKE_BUILD_TYPE=Release -DSTAGE=0 -DUSE_GMP=OFF
+                  -DUSE_LAKE=OFF -DCCACHE=OFF -DINSTALL_LEANTAR=OFF
+                  -DLEAN_PLATFORM_TARGET=x86_64-unknown-linux-gnu
+  lean --version  Lean (version 4.35.0-pre, Release)
+
+The kernel that type-checked this submission is therefore the genuine Lean 4
+kernel, compiled from source.
+
+3. Kernel check: result
+-----------------------
+Compile errors: 0
+
+Kernel axiom audit (#print axioms), verbatim output:
+'_private.pkg.0.shortest_width_is_four' depends on axioms: [propext, Quot.sound]
+'_private.pkg.0.unique_optimal_interval' depends on axioms: [propext, Quot.sound]
+'_private.pkg.0.unique_optimal_representation' depends on axioms: [propext]
+'_private.pkg.0.no_admits_width_three' depends on axioms: [propext, Quot.sound]
+'_private.pkg.0.admits_width_four' depends on axioms: [propext]
+'_private.pkg.0.Jsp000243.no_diameter_three' depends on axioms: [propext, Quot.sound]
+'_private.pkg.0.Jsp000243.no_diameter_four_ge_three' depends on axioms: [propext, Quot.sound]
+'_private.pkg.0.Jsp000243.two_six_works' depends on axioms: [propext]
+'_private.pkg.0.Jsp000243.unique_subset_of_two_six' depends on axioms: [propext]
+'_private.pkg.0.Jsp000243.shortest_interval_is_two_six' depends on axioms: [propext, Quot.sound]
+'_private.pkg.0.Jsp000243.Frac.eqv_trans' depends on axioms: [propext]
+'_private.pkg.0.Jsp000243.Frac.add_eqv' depends on axioms: [propext]
+'_private.pkg.0.Jsp000243.Frac.add_same_den' depends on axioms: [propext]
+'_private.pkg.0.Jsp000243.Frac.eq_one_iff' does not depend on any axioms
+'_private.pkg.0.Jsp000243.mul_q0' depends on axioms: [propext]
+'_private.pkg.0.Jsp000243.mul_q1' depends on axioms: [propext]
+'_private.pkg.0.Jsp000243.mul_q2' depends on axioms: [propext]
+'_private.pkg.0.Jsp000243.mul_q3' depends on axioms: [propext]
+'_private.pkg.0.Jsp000243.mul_q4' depends on axioms: [propext]
+'_private.pkg.0.Jsp000243.selSum_eqv_cleared' depends on axioms: [propext]
+'_private.pkg.0.Jsp000243.sums_to_one_iff' depends on axioms: [propext]
+'_private.pkg.0.Jsp000243.cleared_lt' depends on axioms: [propext, Quot.sound]
+'_private.pkg.0.Jsp000243.cleared_le' does not depend on any axioms
+
+Every dependency is a subset of [propext, Quot.sound].  Classical.choice is
+NOT used.  There is no `sorry`, no `admit`, no `native_decide` and no
+user-declared `axiom` in Proof.lean, Challenge.lean or Audit.lean.
+
+Hole scan (counts per file, Proof.lean / Challenge.lean / Audit.lean):
+  occurrences of 'sorry'          : 1 / 1 / 1
+  occurrences of 'admit'          : 1 / 7 / 3
+  occurrences of 'native_decide'  : 1 / 0 / 1
+  occurrences of 'Mathlib'        : 2 / 0 / 1
+
+4. How the check was set up, and its limitations (full disclosure)
+------------------------------------------------------------------
+(a) No prebuilt Lean or Mathlib toolchain could be obtained in the
+    contributor environment: every Lean distribution host was unreachable
+    (elan.lean-lang.org, release-assets.githubusercontent.com,
+    objects.githubusercontent.com, leanprover-community.github.io).  The
+    compiler and its core-library .olean files therefore had to be built from
+    the leanprover/lean4 source tree.
+
+(b) That tree's src/ is one development step ahead of the stage-0 compiler
+    used to elaborate it, so four *bootstrap-only* edits to Lean's own
+    sources were needed before the core library would elaborate: three
+    anonymous instance names were pinned to the names the sources themselves
+    reference (Nat.instTrichotomousLt, Nat.instDvd, instIrreflOfAsymm) and
+    one `private theorem` was made non-private (List.length_map in
+    Init/Omega/IntList.lean) because the older compiler does not implement
+    the `import all` visibility form.  None of these edits touches this
+    submission, and none of them adds an axiom or alters a proof.
+
+(c) 380 core-library modules were produced.  Six still fail under the older
+    compiler (Init.Data.List.Scan.Lemmas, Init.Data.Nat.Power2.Lemmas,
+    Init.Data.Nat.Bitwise.Lemmas, Init.Data.Range.Lemmas,
+    Init.Data.List.Sort.Lemmas, Init.Data.List.ToArray), so the aggregate
+    module Init.olean could not be produced.  A Lean file with no import line
+    auto-imports Init, and so cannot be loaded by that bootstrap.  The
+    *body* of Proof.lean was therefore checked verbatim under two explicit
+    headers instead:
+
+      (i)  minimal — module / prelude / public import of Init.Tactics,
+           Init.Omega, Init.RCases, Init.ByCases, Init.Data.Nat.Lemmas;
+      (ii) stress  — module / prelude / public import of all 380 built
+           modules (including Init.Data.List.Lemmas, Init.Data.Int.*,
+           Init.Grind.Tactics and Lean.Data.RBMap).
+
+    Both give 0 errors and identical axiom dependencies.  (ii) shows the
+    proof does not depend on the size of the ambient simp or instance set;
+    the stress harness was itself validated by confirming that it reports a
+    deliberately injected error.  Every module in (i) is a plain Init module
+    present in every Lean 4 toolchain and re-exported by Init, so the
+    submitted header-less file sees a strict superset of those names.
+
+(d) All simp invocations in the proof are `simp only [...]` with explicit
+    lemma lists, so they cannot be affected by the ambient simp set.  The
+    only other automation used is omega, decide, rw with explicit rules,
+    cases, rcases, obtain, by_cases, subst, all_goals, calc and first.
+
+(e) The bootstrap lived in an ephemeral sandbox and has been torn down, so
+    the run above cannot be re-executed from this checkout; the output in
+    section 3 is verbatim as recorded.  No GitHub Actions run is attached,
+    because the submitting fork has no Actions workflows and no toolchain
+    could be fetched there either.  This is disclosed rather than papered
+    over: the artefacts in sections 5 and 6 are the reproducible evidence.
+
+(f) Reproduction for any reviewer with normal network access:
+
+        cd submissions/jsp-000243-short-interval-unit-fractions
+        lake build
+
+    This compiles Proof.lean (auto-importing Init), Challenge.lean and
+    Audit.lean and prints the axiom audit of section 3.  Expected: no
+    errors, and every printed dependency a subset of [propext, Quot.sound].
+
+5. Independent cross-check (no Lean required)
+----------------------------------------------
+verification/crosscheck.py re-derives the three central facts using only
+exact rational arithmetic (fractions.Fraction), sharing no code and no
+reasoning path with the Lean proof.  Verbatim output:
+
+    subsets of {2,3,4,5,6} with reciprocal sum 1: [(2, 3, 6)]
+    width<=3 violations for a in 2..3000: 0
+    OK: width 4 via [2,6] with {2,3,6}; unique; no width<=3 example.
+
+6. Repository checks
+--------------------
+Run from the repository root, with this submission directory present:
+
+    python scripts/manage.py validate : OK
+    python scripts/manage.py links    : OK
+    python scripts/manage.py build    : OK   (no generated file changed)
+    python scripts/manage.py check    : OK
+    python -m pytest tests -q         : 22 passed, 18 subtests passed
+
+No existing repository file is modified by this submission; it only adds the
+new directory submissions/jsp-000243-short-interval-unit-fractions/.
